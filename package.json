@@ -12,6 +12,8 @@
   "author": "Scott Bender",
   "license": "Apache-2.0",
   "dependencies": {
-    "node-red": "^0.18.7"
+    "node-red": "^0.18.7",
+    "@signalk/node-red-embedded": "^1.0.0",
+    "lodash": "^4.17.4"
   }
 }

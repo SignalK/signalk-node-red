@@ -45,7 +45,8 @@ module.exports = function(app) {
         streambundle: app.streambundle,
         signalk: app.signalk,
         subscriptionmanager: app.subscriptionmanager,
-        app: app
+        app: app,
+        lodash: require('lodash')
       }
     };
 
