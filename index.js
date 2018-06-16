@@ -21,24 +21,14 @@ module.exports = function(app) {
   var plugin = {};
   var unsubscribes = []
   var options
+  var redSettings
 
   plugin.id = "signalk-node-red";
   plugin.name = "Node Red";
   plugin.description = "Embeds node red in signalk node server";
 
   plugin.start = function(theOptions) {
-    RED.start()
-  }
-
-  plugin.registerWithRouter = function(router) {
-    var redSettings = {
-
-      /*
-      httpAdminRoot: '/plugins/' + plugin.id + '/redAdmin',
-      httpNodeRoot: '/plugins/' + plugin.id +  '/redApi',
-      */
-
-      
+    redSettings = {
       httpAdminRoot: '/redAdmin',
       httpNodeRoot: '/redApi',
       
@@ -54,11 +44,26 @@ module.exports = function(app) {
     };
 
     if ( app.securityStrategy.validateLogin ) {
-      console.log('enabling security')
       redSettings.adminAuth = adminAuth
     }
 
+    if ( theOptions.requires ) {
+      theOptions.requires.forEach(module => {
+        try {
+          redSettings.functionGlobalContext[module] = require(module)
+        } catch (err) {
+          app.error(`unable to load module ${module} ${err}`)
+        }
+      })
+    }
+
     RED.init(app.server, redSettings)
+    RED.start()
+    unsubscribes.push(RED.stop)
+  }
+
+  plugin.registerWithRouter = function(router) {
+
     app.use(redSettings.httpAdminRoot, RED.httpAdmin);
     app.use(redSettings.httpNodeRoot, RED.httpNode);
   }
@@ -72,6 +77,13 @@ module.exports = function(app) {
   plugin.schema = {
     title: "Node Red",
     properties: {
+      requires: {
+        type: 'array',
+        title: 'Npm modules to make available',
+        items: {
+          type: 'string'
+        }
+      }
     }
   }
 
