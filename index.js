@@ -53,6 +53,11 @@ module.exports = function(app) {
       }
     };
 
+    if ( app.securityStrategy.validateLogin ) {
+      console.log('enabling security')
+      redSettings.adminAuth = adminAuth
+    }
+
     RED.init(app.server, redSettings)
     app.use(redSettings.httpAdminRoot, RED.httpAdmin);
     app.use(redSettings.httpNodeRoot, RED.httpNode);
@@ -70,50 +75,42 @@ module.exports = function(app) {
     }
   }
 
-  /*
   var adminAuth = {
-   type: "credentials",
-   users: function(username) {
-       return new Promise(function(resolve) {
-           // Do whatever work is needed to check username is a valid
-           // user.
-           if (valid) {
-               // Resolve with the user object. It must contain
-               // properties 'username' and 'permissions'
-               var user = { username: "admin", permissions: "*" };
-               resolve(user);
-           } else {
-               // Resolve with null to indicate this user does not exist
-               resolve(null);
-           }
-       });
+    type: "credentials",
+    users: function(username) {
+      return new Promise(function(resolve) {
+        let type = app.securityStrategy.getUserType(username)
+        if (type) {
+          var user = { username: username, permissions: type === 'admin' ? '*' : 'read' };
+          resolve(user);
+        } else {
+          resolve(null);
+        }
+      });
    },
    authenticate: function(username,password) {
+     return new Promise(function(resolve) {
+       app.securityStrategy.validateLogin(username, password, (valid) => {
+         if ( valid ) {
+           let type = app.securityStrategy.getUserType(username)
+           var user = { username: "admin", permissions: type === 'admin' ? '*' : 'read' };
+           resolve(user);
+         } else {
+           resolve(null);
+         }
+       })
+     });
+                       },
+     default: function() {
        return new Promise(function(resolve) {
-           // Do whatever work is needed to validate the username/password
-           // combination.
-           if (valid) {
-               // Resolve with the user object. Equivalent to having
-               // called users(username);
-               var user = { username: "admin", permissions: "*" };
-               resolve(user);
-           } else {
-               // Resolve with null to indicate the username/password pair
-               // were not valid.
-               resolve(null);
-           }
-       });
-   },
-   default: function() {
-       return new Promise(function(resolve) {
-           // Resolve with the user object for the default user.
-           // If no default user exists, resolve with null.
+         if ( app.securityStrategy.allowReadOnly() ) {
            resolve({anonymous: true, permissions:"read"});
+         } else {
+           resolve(null)
+         }
        });
+     }
    }
-}
-*/
-
-  
+    
   return plugin;
 }
