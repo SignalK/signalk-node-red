@@ -31,9 +31,10 @@ module.exports = function(app) {
     redSettings = {
       httpAdminRoot: '/redAdmin',
       httpNodeRoot: '/redApi',
-      
-      
+            
       userDir: app.config.configPath + '/red',
+      logging: {'console': { level: theOptions.logging || 'info'}},
+      credentialSecret: 'jkhdfshjkfdskjhfsjfsdkjhsfdjkfsd',
       functionGlobalContext: {
         streambundle: app.streambundle,
         signalk: app.signalk,
@@ -43,8 +44,14 @@ module.exports = function(app) {
       }
     };
 
+    console.log('LOGGING: ' + redSettings.logging)
+    
     if ( app.securityStrategy.validateLogin ) {
       redSettings.adminAuth = adminAuth
+    }
+
+    if ( theOptions.flowFile && theOptions.flowFile.length > 0 ) {
+      redSettings.flowFile = theOptions.flowFile
     }
 
     if ( theOptions.requires ) {
@@ -77,6 +84,17 @@ module.exports = function(app) {
   plugin.schema = {
     title: "Node Red",
     properties: {
+      flowFile: {
+        type: 'string',
+        title: 'Flow File',
+        description: 'the file used to store the flows'
+      },
+      logging: {
+        type: 'string',
+        title: 'Logging',
+        enum: [ 'falal', 'error', 'warn', 'info', 'debug', 'trace' ],
+        default: 'info'
+      },
       requires: {
         type: 'array',
         title: 'Npm modules to make available',
