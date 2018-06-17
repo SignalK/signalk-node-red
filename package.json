@@ -1,13 +1,14 @@
 {
   "name": "@signalk/signalk-node-red",
   "version": "2.0.0",
-  "description": "Node server plugin that embeds node red",
+  "description": "Node-RED Plugin",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "signalk-node-server-plugin"
+    "signalk-node-server-plugin",
+    "signalk-webapp"
   ],
   "author": "Scott Bender",
   "license": "Apache-2.0",
