@@ -44,8 +44,6 @@ module.exports = function(app) {
       }
     };
 
-    console.log('LOGGING: ' + redSettings.logging)
-    
     if ( app.securityStrategy.validateLogin ) {
       redSettings.adminAuth = adminAuth
     }
