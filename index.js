@@ -40,7 +40,8 @@ module.exports = function(app) {
         signalk: app.signalk,
         subscriptionmanager: app.subscriptionmanager,
         app: app,
-        lodash: require('lodash')
+        lodash: require('lodash'),
+        geodist: require('geodist')
       }
     };
 
@@ -64,13 +65,15 @@ module.exports = function(app) {
 
     RED.init(app.server, redSettings)
     RED.start()
+
+    app.use(redSettings.httpAdminRoot, RED.httpAdmin);
+    app.use(redSettings.httpNodeRoot, RED.httpNode);
+
     unsubscribes.push(RED.stop)
   }
 
   plugin.registerWithRouter = function(router) {
 
-    app.use(redSettings.httpAdminRoot, RED.httpAdmin);
-    app.use(redSettings.httpNodeRoot, RED.httpNode);
   }
 
   plugin.stop = function() {
