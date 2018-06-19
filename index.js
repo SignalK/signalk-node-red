@@ -68,15 +68,17 @@ module.exports = function(app) {
     RED.init(app.server, redSettings)
     RED.start()
 
-    
+    /*
     if ( app.securityStrategy.addAdminMiddleware ) {
       app.securityStrategy.addAdminMiddleware('/@signalk/signalk-node-red')
       app.securityStrategy.addAdminMiddleware(redSettings.httpAdminRoot)
       app.securityStrategy.addAdminMiddleware(redSettings.httpNodeRoot)
     }
-    
+    */
+
     app.use(redSettings.httpAdminRoot, RED.httpAdmin);
     app.use(redSettings.httpNodeRoot, RED.httpNode);
+
 
     unsubscribes.push(RED.stop)
   }
