@@ -45,9 +45,11 @@ module.exports = function(app) {
       }
     };
 
+    /*
     if ( app.securityStrategy.validateLogin ) {
       redSettings.adminAuth = adminAuth
     }
+    */
 
     if ( theOptions.flowFile && theOptions.flowFile.length > 0 ) {
       redSettings.flowFile = theOptions.flowFile
@@ -66,6 +68,13 @@ module.exports = function(app) {
     RED.init(app.server, redSettings)
     RED.start()
 
+    
+    if ( app.securityStrategy.addAdminMiddleware ) {
+      app.securityStrategy.addAdminMiddleware('/@signalk/signalk-node-red')
+      app.securityStrategy.addAdminMiddleware(redSettings.httpAdminRoot)
+      app.securityStrategy.addAdminMiddleware(redSettings.httpNodeRoot)
+    }
+    
     app.use(redSettings.httpAdminRoot, RED.httpAdmin);
     app.use(redSettings.httpNodeRoot, RED.httpNode);
 
@@ -106,6 +115,7 @@ module.exports = function(app) {
     }
   }
 
+  /*
   var adminAuth = {
     type: "credentials",
     users: function(username) {
@@ -142,6 +152,7 @@ module.exports = function(app) {
        });
      }
    }
+*/
     
   return plugin;
 }
