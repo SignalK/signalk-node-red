@@ -22,7 +22,8 @@
     "node-red": "^0.18.7",
     "@signalk/node-red-embedded": "^2.0.0",
     "lodash": "^4.17.4",
-    "geodist": "^0.2.1"
+    "geodist": "^0.2.1",
+    "compare-versions": "^3.0.1"
   },
   "devDependencies": {
     "github-changes": "^1.1.2"

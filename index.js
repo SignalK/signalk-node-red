@@ -16,12 +16,14 @@
 
 
 const RED = require("node-red")
+const compareVersions = require('compare-versions')
 
 module.exports = function(app) {
   var plugin = {};
   var unsubscribes = []
   var options
   var redSettings
+  var supportsSecurity = compareVersions(app.config.version, '1.3.0') > 0
 
   plugin.id = "signalk-node-red";
   plugin.name = "Node Red";
@@ -29,8 +31,8 @@ module.exports = function(app) {
 
   plugin.start = function(theOptions) {
     redSettings = {
-      httpAdminRoot: '/redAdmin',
-      httpNodeRoot: '/redApi',
+      httpAdminRoot: '/plugins/' + plugin.id + '/redAdmin',
+      httpNodeRoot: '/plugins/' + plugin.id + '/redApi',
             
       userDir: app.config.configPath + '/red',
       logging: {'console': { level: theOptions.logging || 'info'}},
@@ -44,12 +46,6 @@ module.exports = function(app) {
         geodist: require('geodist')
       }
     };
-
-    /*
-    if ( app.securityStrategy.validateLogin ) {
-      redSettings.adminAuth = adminAuth
-    }
-    */
 
     if ( theOptions.flowFile && theOptions.flowFile.length > 0 ) {
       redSettings.flowFile = theOptions.flowFile
@@ -68,23 +64,35 @@ module.exports = function(app) {
     RED.init(app.server, redSettings)
     RED.start()
 
-    /*
-    if ( app.securityStrategy.addAdminMiddleware ) {
-      app.securityStrategy.addAdminMiddleware('/@signalk/signalk-node-red')
-      app.securityStrategy.addAdminMiddleware(redSettings.httpAdminRoot)
-      app.securityStrategy.addAdminMiddleware(redSettings.httpNodeRoot)
+    if ( !supportsSecurity ) {
+      app.use(redSettings.httpAdminRoot, RED.httpAdmin);
+      app.use(redSettings.httpNodeRoot, RED.httpNode);
+    } else {
+      app.get('/redAdmin', (req, res) => {
+        res.redirect(redSettings.httpAdminRoot)
+      })
     }
-    */
-
-    app.use(redSettings.httpAdminRoot, RED.httpAdmin);
-    app.use(redSettings.httpNodeRoot, RED.httpNode);
-
 
     unsubscribes.push(RED.stop)
   }
 
   plugin.registerWithRouter = function(router) {
-
+    if ( supportsSecurity ) {
+      router.use('/redAdmin', (req, res, next) => {
+        if ( RED.httpAdmin ) {
+          RED.httpAdmin(req, res, next)
+        } else {
+          res.status(404).send(`The ${plugin.id} plugin is not started`)
+        }
+      });
+      router.use('/redApi', (req, res, next) => {
+        if ( RED.httpNode ) {
+          RED.httpNode(req, res, next)
+        } else {
+          res.status(404).send(`The ${plugin.id} plugin is not started`)
+        }
+      });
+    }
   }
 
   plugin.stop = function() {
@@ -116,45 +124,6 @@ module.exports = function(app) {
       }
     }
   }
-
-  /*
-  var adminAuth = {
-    type: "credentials",
-    users: function(username) {
-      return new Promise(function(resolve) {
-        let type = app.securityStrategy.getUserType(username)
-        if (type) {
-          var user = { username: username, permissions: type === 'admin' ? '*' : 'read' };
-          resolve(user);
-        } else {
-          resolve(null);
-        }
-      });
-   },
-   authenticate: function(username,password) {
-     return new Promise(function(resolve) {
-       app.securityStrategy.validateLogin(username, password, (valid) => {
-         if ( valid ) {
-           let type = app.securityStrategy.getUserType(username)
-           var user = { username: "admin", permissions: type === 'admin' ? '*' : 'read' };
-           resolve(user);
-         } else {
-           resolve(null);
-         }
-       })
-     });
-                       },
-     default: function() {
-       return new Promise(function(resolve) {
-         if ( app.securityStrategy.allowReadOnly() ) {
-           resolve({anonymous: true, permissions:"read"});
-         } else {
-           resolve(null)
-         }
-       });
-     }
-   }
-*/
     
   return plugin;
 }
