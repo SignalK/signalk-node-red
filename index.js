@@ -31,9 +31,7 @@ module.exports = function(app) {
 
   plugin.start = function(theOptions) {
     redSettings = {
-      httpAdminRoot: '/plugins/' + plugin.id + '/redAdmin',
-      httpNodeRoot: '/plugins/' + plugin.id + '/redApi',
-            
+       
       userDir: app.config.configPath + '/red',
       logging: {'console': { level: theOptions.logging || 'info'}},
       credentialSecret: 'jkhdfshjkfdskjhfsjfsdkjhsfdjkfsd',
@@ -60,6 +58,15 @@ module.exports = function(app) {
         }
       })
     }
+
+    if ( !supportsSecurity ) {
+      redSettings.httpAdminRoot = '/redAdmin'
+      redSettings.httpNodeRoot = '/redApi'
+    } else {
+      redSettings.httpAdminRoot = '/plugins/' + plugin.id + '/redAdmin'
+      redSettings.httpNodeRoot = '/plugins/' + plugin.id + '/redApi'
+    }
+
 
     RED.init(app.server, redSettings)
     RED.start()
