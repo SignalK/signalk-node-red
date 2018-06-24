@@ -24,6 +24,7 @@ module.exports = function(app) {
   var options
   var redSettings
   var supportsSecurity = compareVersions(app.config.version, '1.3.0') > 0
+  var deltaHandlers = []
 
   plugin.id = "signalk-node-red";
   plugin.name = "Node Red";
@@ -40,6 +41,7 @@ module.exports = function(app) {
         signalk: app.signalk,
         subscriptionmanager: app.subscriptionmanager,
         app: app,
+        plugin: plugin,
         lodash: require('lodash'),
         geodist: require('geodist')
       }
@@ -67,7 +69,6 @@ module.exports = function(app) {
       redSettings.httpNodeRoot = '/plugins/' + plugin.id + '/redApi'
     }
 
-
     RED.init(app.server, redSettings)
     RED.start()
 
@@ -82,6 +83,56 @@ module.exports = function(app) {
 
     unsubscribes.push(RED.stop)
   }
+
+  function deltaInputHandler(delta, next) {
+    if ( deltaHandlers.length == 0 ) {
+      next(delta)
+      return
+    }
+    
+    if ( delta.updates ) {
+      delta.updates.forEach(update => {
+        if ( update.values  ) {
+          update.values.forEach(pathValue => {
+            deltaHandlers.forEach(handler => {
+              if ( delta.context == handler.context
+                   && pathValue.path == handler.path
+                   && (!handler.source
+                       || (update.$source && handler.source == update.$source)) ) {
+                handler.callback({
+                  topic: pathValue.path,
+                  payload: pathValue.value,
+                  $source: update.$source,
+                  source: update.source,
+                  context: delta.context
+                }, next)
+              }
+            })
+          })
+        }
+      })
+    }
+  }
+
+  plugin.registerDeltaInputHandler = function(context, path, source, cb) {
+    const info = {
+      context: context === 'vessels.self' ? app.selfContext : context,
+      path: path,
+      source: source,
+      callback: cb
+    }
+    deltaHandlers.push(info)
+    
+    if ( deltaHandlers.length == 1 ) {
+      app.registerDeltaInputHandler(deltaInputHandler)
+    }
+
+    return () => {
+      let idx = deltaHandlers.indexOf(info)
+      deltaHandlers.splice(idx, 1)
+    }
+  }
+
 
   plugin.registerWithRouter = function(router) {
     if ( supportsSecurity ) {
