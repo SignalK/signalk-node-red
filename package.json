@@ -1,6 +1,6 @@
 {
   "name": "@signalk/signalk-node-red",
-  "version": "2.6.2",
+  "version": "2.7.0",
   "description": "Node-RED Plugin",
   "main": "index.js",
   "scripts": {
