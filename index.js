@@ -17,6 +17,7 @@
 
 const RED = require("node-red")
 const compareVersions = require('compare-versions')
+const _ = require('lodash')
 
 module.exports = function(app) {
   var plugin = {};
@@ -82,6 +83,17 @@ module.exports = function(app) {
     }
 
     unsubscribes.push(RED.stop)
+  }
+
+  plugin.getSelfPath = function(path, timeout) {
+    let res = app.getSelfPath(path)
+
+    if ( res && !_.isUndefined(res.value) && !_.isUndefined(res.timestamp) 
+         && Date.now() - new Date(res.timestamp).getTime() < timeout ) {
+      return res.value
+    }
+
+    return undefined
   }
 
   function deltaInputHandler(delta, next) {
