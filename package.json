@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "node-red": "^0.18.7",
-    "@signalk/node-red-embedded": "^2.0.0",
+    "@signalk/node-red-embedded": "^2.8.1",
     "lodash": "^4.17.4",
     "geodist": "^0.2.1",
     "compare-versions": "^3.0.1"
