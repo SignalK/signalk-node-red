@@ -101,7 +101,8 @@ module.exports = function(app) {
       next(delta)
       return
     }
-    
+
+    let matched = false
     if ( delta.updates ) {
       delta.updates.forEach(update => {
         if ( update.values  ) {
@@ -111,6 +112,7 @@ module.exports = function(app) {
                    && pathValue.path == handler.path
                    && (!handler.source
                        || (update.$source && handler.source == update.$source)) ) {
+                matched = true
                 handler.callback({
                   topic: pathValue.path,
                   payload: pathValue.value,
@@ -123,6 +125,9 @@ module.exports = function(app) {
           })
         }
       })
+    }
+    if ( !matched ) {
+      next(delta)
     }
   }
 
