@@ -51,7 +51,14 @@ module.exports = function(app) {
     if ( theOptions.flowFile && theOptions.flowFile.length > 0 ) {
       redSettings.flowFile = theOptions.flowFile
     }
-
+    
+    if ( theOptions.settings ) {
+      theOptions.settings.forEach(s => {
+        redSettings[s.name] = JSON.parse(s.value)
+        app.debug('setting %s to %s', s.name, s.value)
+      })
+    }
+    
     if ( theOptions.requires ) {
       theOptions.requires.forEach(module => {
         try {
@@ -61,7 +68,7 @@ module.exports = function(app) {
         }
       })
     }
-
+    
     if ( !supportsSecurity ) {
       redSettings.httpAdminRoot = '/redAdmin'
       redSettings.httpNodeRoot = '/redApi'
@@ -69,6 +76,7 @@ module.exports = function(app) {
       redSettings.httpAdminRoot = '/plugins/' + plugin.id + '/redAdmin'
       redSettings.httpNodeRoot = '/plugins/' + plugin.id + '/redApi'
     }
+
 
     RED.init(app.server, redSettings)
     RED.start()
@@ -195,6 +203,23 @@ module.exports = function(app) {
         title: 'Npm modules to make available',
         items: {
           type: 'string'
+        }
+      },
+      settings: {
+        title: 'Node Red Settings',
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+              title: 'Setting Name'
+            },
+            value: {
+              type: 'string',
+              title: 'Setting Value (json)'
+            }
+          }
         }
       }
     }
