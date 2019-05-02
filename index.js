@@ -110,11 +110,12 @@ module.exports = function(app) {
       return
     }
 
-    let matched = false
     if ( delta.updates ) {
       delta.updates.forEach(update => {
         if ( update.values  ) {
+          let newValues = []
           update.values.forEach(pathValue => {
+            let matched = false
             deltaHandlers.forEach(handler => {
               if ( delta.context == handler.context
                    && pathValue.path == handler.path
@@ -126,17 +127,20 @@ module.exports = function(app) {
                   payload: pathValue.value,
                   $source: update.$source,
                   source: update.source,
-                  context: delta.context
+                  context: delta.context,
+                  timestamp: update.timestamp
                 }, next)
               }
             })
+            if ( !matched ) {
+              newValues.push(pathValue)
+            }
           })
+          update.values = newValues
         }
       })
     }
-    if ( !matched ) {
-      next(delta)
-    }
+    next(delta)
   }
 
   plugin.registerDeltaInputHandler = function(context, path, source, cb) {
