@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "create-release": "github-create-release --owner canboat --repository canboatjs",
+    "create-release": "github-create-release --owner signalk --repository signalk-node-red",
     "release": "git tag -d v$npm_package_version && git tag v$npm_package_version && git push --tags && git push && npm run create-release"
   },
   "keywords": [
