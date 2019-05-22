@@ -26,6 +26,7 @@ module.exports = function(app) {
   var redSettings
   var supportsSecurity = compareVersions(app.config.version, '1.3.0') > 0
   var deltaHandlers = []
+  var didRegisterInputHandler = false
 
   plugin.id = "signalk-node-red";
   plugin.name = "Node Red";
@@ -152,8 +153,9 @@ module.exports = function(app) {
     }
     deltaHandlers.push(info)
     
-    if ( deltaHandlers.length == 1 ) {
+    if ( !this.didRegisterInputHandler ) {
       app.registerDeltaInputHandler(deltaInputHandler)
+      this.didRegisterInputHandler = true
     }
 
     return () => {
@@ -186,6 +188,7 @@ module.exports = function(app) {
     app.debug("stopping...")
     unsubscribes.forEach(f => f());
     unsubscribes = [];
+    didRegisterInputHandler = false
   };
 
   plugin.schema = {
