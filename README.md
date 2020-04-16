@@ -1,6 +1,7 @@
 # signalk-node-red
 Node server plugin that embeds node red
 
+You do not need to install node-red separately, just install this plugin via the app store.
 
 Go to Webapps in the node server admin ui to get to node-red.
 
