@@ -23,7 +23,7 @@
     "compare-versions": "^3.0.1",
     "geodist": "^0.2.1",
     "lodash": "^4.17.4",
-    "node-red": "^0.19.4"
+    "node-red": "^1.0.5"
   },
   "devDependencies": {
     "@signalk/github-create-release": "^1.0.1"
