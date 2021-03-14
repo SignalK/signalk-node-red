@@ -19,7 +19,7 @@
     "url": "https://github.com/SignalK/signalk-node-red"
   },
   "dependencies": {
-    "@signalk/node-red-embedded": "2.14.x",
+    "@signalk/node-red-embedded": "2.17.x",
     "compare-versions": "^3.0.1",
     "geodist": "^0.2.1",
     "lodash": "^4.17.4",
