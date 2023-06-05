@@ -55,8 +55,13 @@ module.exports = function(app) {
     
     if ( theOptions.settings ) {
       theOptions.settings.forEach(s => {
-        redSettings[s.name] = JSON.parse(s.value)
-        app.debug('setting %s to %s', s.name, s.value)
+        try {
+          app.debug('setting %s to %s', s.name, s.value)
+          redSettings[s.name] = JSON.parse(s.value)
+        } catch ( e ) {
+          app.error(`unable to parse setting ${s.name} of ${s.value}`)
+          app.setPluginError(`unable to parse setting ${s.name} of ${s.value}`)
+        }
       })
     }
     
