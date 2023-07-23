@@ -1,7 +1,7 @@
 {
   "name": "@signalk/signalk-node-red",
   "version": "3.0.1",
-  "description": "Node-RED Plugin",
+  "description": "Combine Node-RED with Signal K data",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -28,5 +28,9 @@
   "devDependencies": {
     "@signalk/github-create-release": "^1.0.1"
   },
-  "signalk-plugin-enabled-by-default": true
+  "signalk-plugin-enabled-by-default": true,
+  "signalk": {
+    "appIcon": "./node-red-icon-2.png",
+    "displayName": "Node-RED"
+  }
 }
