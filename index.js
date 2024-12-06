@@ -94,6 +94,7 @@ module.exports = function(app) {
       app.get('/redAdmin', (req, res) => {
         res.redirect(redSettings.httpAdminRoot)
       })
+      app.use(redSettings.httpAdminRoot, RED.httpNode);
     }
 
     unsubscribes.push(RED.stop)
