@@ -1,6 +1,6 @@
 {
   "name": "@signalk/signalk-node-red",
-  "version": "3.2.1",
+  "version": "4.1.0",
   "description": "Combine Node-RED with Signal K data",
   "main": "index.js",
   "scripts": {
