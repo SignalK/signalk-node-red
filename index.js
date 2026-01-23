@@ -14,6 +14,21 @@
  * limitations under the License.
  */
 
+/**
+ * Workaround for Node.js 20+ "Happy Eyeballs" (RFC 6555) causing AggregateError
+ * in libraries using @cypress/request (e.g., node-telegram-bot-api).
+ *
+ * Node.js 20+ enables autoSelectFamily by default, which tries IPv4 and IPv6
+ * simultaneously. When connections fail, it throws AggregateError which older
+ * HTTP libraries don't handle properly.
+ *
+ * See: https://github.com/yagop/node-telegram-bot-api/issues/1193
+ *      https://github.com/nodejs/node/pull/46790
+ */
+const net = require('net')
+if (typeof net.setDefaultAutoSelectFamily === 'function') {
+  net.setDefaultAutoSelectFamily(false)
+}
 
 const RED = require("node-red")
 const compareVersions = require('compare-versions')
