@@ -208,7 +208,7 @@ module.exports = function(app) {
       logging: {
         type: 'string',
         title: 'Logging',
-        enum: [ 'falal', 'error', 'warn', 'info', 'debug', 'trace' ],
+        enum: [ 'fatal', 'error', 'warn', 'info', 'debug', 'trace' ],
         default: 'info'
       },
       requires: {
