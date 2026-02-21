@@ -36,7 +36,19 @@ module.exports = function(app) {
     redSettings = {
        
       userDir: app.config.configPath + '/red',
-      logging: {'console': { level: theOptions.logging || 'info'}},
+      logging: {
+        console: {
+          level: theOptions.logging || 'info',
+          handler: function() {
+            const levelNames = { 10: 'fatal', 20: 'error', 30: 'warn', 40: 'info', 50: 'debug', 60: 'trace', 98: 'audit', 99: 'metric' }
+            return function(msg) {
+              const ts = new Date().toISOString()
+              const level = levelNames[msg.level] || 'info'
+              console.log(`${ts} node-red [${level}] ${msg.msg}`)
+            }
+          }
+        }
+      },
       credentialSecret: 'jkhdfshjkfdskjhfsjfsdkjhsfdjkfsd',
       functionGlobalContext: {
         streambundle: app.streambundle,
