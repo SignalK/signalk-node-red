@@ -19,6 +19,18 @@ const RED = require("node-red")
 const compareVersions = require('compare-versions')
 const _ = require('lodash')
 
+const defaultSKPersist = {
+  "module": "localfilesystem",
+  "config": {
+    "cache": false
+  }
+}
+  
+const defaultContextStorage = {
+  "default": { "module": "memory" },
+  "skpersist": defaultSKPersist
+}
+
 module.exports = function(app) {
   var plugin = {};
   var unsubscribes = []
@@ -65,16 +77,31 @@ module.exports = function(app) {
       redSettings.flowFile = theOptions.flowFile
     }
     
+    let hasContextStorage = false
+
     if ( theOptions.settings ) {
       theOptions.settings.forEach(s => {
         try {
           app.debug('setting %s to %s', s.name, s.value)
-          redSettings[s.name] = JSON.parse(s.value)
+          if ( s.name === 'contextStorage' ) {
+            const contextStorage = JSON.parse(s.value)
+            if ( contextStorage['skpersist'] === undefined ) {
+              contextStorage['skpersist'] = defaultSKPersist
+            }
+            redSettings.contextStorage = contextStorage
+            hasContextStorage = true
+          } else {
+            redSettings[s.name] = JSON.parse(s.value)
+          }
         } catch ( e ) {
           app.error(`unable to parse setting ${s.name} of ${s.value}`)
           app.setPluginError(`unable to parse setting ${s.name} of ${s.value}`)
         }
       })
+    }
+
+    if ( ! hasContextStorage ) {
+      redSettings.contextStorage = defaultContextStorage
     }
     
     if ( theOptions.requires ) {
