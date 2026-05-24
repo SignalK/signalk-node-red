@@ -69,7 +69,8 @@ module.exports = function(app) {
         app: app,
         plugin: plugin,
         lodash: require('lodash'),
-        geodist: require('geodist')
+        geodist: require('geodist'),
+        isSKEmbedded: true
       }
     };
 
