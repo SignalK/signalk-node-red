@@ -45,6 +45,16 @@ module.exports = function(app) {
   plugin.description = "Embeds node red in signalk node server";
 
   plugin.start = function(theOptions) {
+    if ( theOptions.victronDbusAddress && theOptions.victronDbusAddress.trim().length > 0 ) {
+      const victronDbusAddress = theOptions.victronDbusAddress.trim()
+      if ( /^[^:\s]+:\d+$/.test(victronDbusAddress) ) {
+        process.env.NODE_RED_DBUS_ADDRESS = victronDbusAddress
+      } else {
+        app.error(`invalid Victron D-Bus Address '${victronDbusAddress}', expected host:port, e.g. venus.local:78`)
+        app.setPluginError(`invalid Victron D-Bus Address '${victronDbusAddress}', expected host:port, e.g. venus.local:78`)
+      }
+    }
+
     redSettings = {
        
       userDir: app.config.configPath + '/red',
@@ -257,6 +267,11 @@ module.exports = function(app) {
         items: {
           type: 'string'
         }
+      },
+      victronDbusAddress: {
+        type: 'string',
+        title: 'Victron D-Bus Address (host:port)',
+        description: 'For node-red-contrib-victron: connect to a GX device over TCP instead of the local D-Bus, e.g. venus.local:78 or 192.168.1.4:78. Needed when Signal K does not run on the GX device itself, e.g. in a container. Requires "Insecure D-Bus over TCP" to be enabled on the GX device. Changing the value requires a server restart to take effect.'
       },
       settings: {
         title: 'Node Red Settings',
